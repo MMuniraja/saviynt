@@ -1,4 +1,10 @@
 node {  
+	def ImageName=""
+	def Pod=""
+	def Container=""
+	def Service=""
+	def Namespace=""
+	def Ingress=""
 	    stage('Git Checkout'){
 	        git 'https://github.com/MMuniraja/saviynt.git'
 	    }
@@ -29,7 +35,7 @@ node {
 		}
 
 	    }
-	    stage('Shell Script'){
+	    stage('Get Pod Details'){
 		
 		sh 'Pods_Details.sh'
 	      
