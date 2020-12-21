@@ -1,0 +1,75 @@
+---
+hosts: webservers
+become: true
+vars:
+Namespace: ""
+ImageName: ""
+Pod: ""
+Container: ""
+Deployment: ""
+Service: ""
+Ingress: ""
+
+tasks:
+ - name: Create Namespace {{ Namespace }}
+      command: "kubectl create namespace {{ Namespace }}"
+      ignore_errors: yes
+- name: " Create Deployment {{ Deployment }}"
+  k8s:
+  state: present
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ Deployment }}
+  labels:
+    app: 
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: test
+  template:
+    metadata:
+      labels:
+        app: {{ ImageName }}
+    spec:
+      containers:
+      - name: {{ ImageName }}
+        image: {{ ImageName }}
+        ports:
+        - containerPort: 80
+---
+- name: "Create {{ Service }}"
+  k8s:
+  state: present
+    apiVersion: v1
+    kind: Service
+     metadata:
+     name: {{ Service }}
+        spec:
+          selector:
+     app: {{ ImageName }}
+     ports:
+      - protocol: TCP
+        port: 80
+        targetPort: 80
+---
+ - name: " Ingress Example"
+   community.kubernetes.k8s:
+   apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: minimal-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+  - http:
+      paths:
+      - path: 
+        pathType: Prefix
+        backend:
+          service:
+            name: {{ Ingress }}
+            port:
+              number: 80
